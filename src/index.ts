@@ -6,6 +6,8 @@ export interface SearchResult {
   path: string;
   name: string;
   isDirectory: boolean;
+  size: number;
+  modifiedAt: Date;
 }
 
 export interface SearchOptions {
@@ -13,6 +15,10 @@ export interface SearchOptions {
   pattern?: string;
   ignore?: string[];
   useGitignore?: boolean;
+  minSize?: number;
+  maxSize?: number;
+  onlyDirectories?: boolean;
+  onlyFiles?: boolean;
 }
 
 export class FileFinder {
@@ -30,14 +36,32 @@ export class FileFinder {
       }
     }
 
-    await this.traverse(options.root, results, ignoreManager);
+    await this.traverse(options.root, results, ignoreManager, options);
+
+    let filtered = results;
 
     if (options.pattern && options.pattern !== '*') {
       const regex = this.globToRegex(options.pattern);
-      return results.filter(result => regex.test(result.name));
+      filtered = filtered.filter(result => regex.test(result.name));
     }
 
-    return results;
+    if (options.minSize !== undefined) {
+      filtered = filtered.filter(result => result.size >= options.minSize!);
+    }
+
+    if (options.maxSize !== undefined) {
+      filtered = filtered.filter(result => result.size <= options.maxSize!);
+    }
+
+    if (options.onlyDirectories) {
+      filtered = filtered.filter(result => result.isDirectory);
+    }
+
+    if (options.onlyFiles) {
+      filtered = filtered.filter(result => !result.isDirectory);
+    }
+
+    return filtered;
   }
 
   private globToRegex(glob: string): RegExp {
@@ -51,7 +75,8 @@ export class FileFinder {
   private async traverse(
     currentDir: string,
     results: SearchResult[],
-    ignoreManager: IgnoreManager
+    ignoreManager: IgnoreManager,
+    options: SearchOptions
   ): Promise<void> {
     const entries = await readdir(currentDir);
 
@@ -69,14 +94,20 @@ export class FileFinder {
         continue;
       }
 
-      if (entryStat.isDirectory()) {
-        await this.traverse(fullPath, results, ignoreManager);
-      } else {
-        results.push({
-          path: fullPath,
-          name: entry,
-          isDirectory: false
-        });
+      const isDirectory = entryStat.isDirectory();
+      
+      const result: SearchResult = {
+        path: fullPath,
+        name: entry,
+        isDirectory,
+        size: entryStat.size,
+        modifiedAt: entryStat.mtime
+      };
+
+      results.push(result);
+
+      if (isDirectory) {
+        await this.traverse(fullPath, results, ignoreManager, options);
       }
     }
   }
@@ -93,7 +124,8 @@ async function main() {
     const results = await finder.search({ 
       root, 
       pattern,
-      ignore: ['node_modules', '.git', 'dist']
+      ignore: ['node_modules', '.git', 'dist'],
+      onlyFiles: true
     });
     
     if (results.length === 0) {
@@ -101,7 +133,7 @@ async function main() {
     } else {
       console.log(`Found ${results.length} files:`);
       results.forEach(file => {
-        console.log(` - ${file.path}`);
+        console.log(` - ${file.path} (${file.size} bytes)`);
       });
     }
   } catch (error) {
