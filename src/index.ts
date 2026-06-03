@@ -13,6 +13,7 @@ export interface SearchResult {
 export interface SearchOptions {
   root: string;
   pattern?: string;
+  regex?: RegExp;
   ignore?: string[];
   useGitignore?: boolean;
   minSize?: number;
@@ -40,7 +41,9 @@ export class FileFinder {
 
     let filtered = results;
 
-    if (options.pattern && options.pattern !== '*') {
+    if (options.regex) {
+      filtered = filtered.filter(result => options.regex!.test(result.name));
+    } else if (options.pattern && options.pattern !== '*') {
       const regex = this.globToRegex(options.pattern);
       filtered = filtered.filter(result => regex.test(result.name));
     }
