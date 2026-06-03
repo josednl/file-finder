@@ -191,7 +191,7 @@ API design principles:
 
 * [x] **Project Bootstrap**: Configure TypeScript, Vitest, ESM, and CLI structure.
 * [x] **Filesystem Traversal**: Implement recursive directory walking.
-* [ ] **Basic Pattern Matching**: Support exact filenames and glob patterns.
+* [x] **Basic Pattern Matching**: Support exact filenames and glob patterns.
 * [ ] **Ignore System**: Add support for `.gitignore` and custom ignore rules.
 * [ ] **Advanced Filters**: Add size, date, and type filtering.
 * [ ] **Regex Search**: Support regular expression matching.
