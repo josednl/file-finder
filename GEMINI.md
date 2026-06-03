@@ -189,7 +189,7 @@ API design principles:
 
 ## Roadmap
 
-* [ ] **Project Bootstrap**: Configure TypeScript, Vitest, ESM, and CLI structure.
+* [x] **Project Bootstrap**: Configure TypeScript, Vitest, ESM, and CLI structure.
 * [ ] **Filesystem Traversal**: Implement recursive directory walking.
 * [ ] **Basic Pattern Matching**: Support exact filenames and glob patterns.
 * [ ] **Ignore System**: Add support for `.gitignore` and custom ignore rules.
