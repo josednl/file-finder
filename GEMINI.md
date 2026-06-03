@@ -195,7 +195,7 @@ API design principles:
 * [x] **Ignore System**: Add support for `.gitignore` and custom ignore rules.
 * [x] **Advanced Filters**: Add size, date, and type filtering.
 * [x] **Regex Search**: Support regular expression matching.
-* [ ] **CLI Experience**: Add argument parsing and output formatting.
+* [x] **CLI Experience**: Add argument parsing and output formatting.
 * [ ] **API Stabilization**: Finalize public API contracts.
 * [ ] **Performance Improvements**: Optimize large directory traversal.
 * [ ] **AbortSignal Support**: Allow cancellation of long-running searches.
