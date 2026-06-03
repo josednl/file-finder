@@ -37,18 +37,36 @@ const results = await finder.search({
 console.log(results);
 ```
 
-### Development
+### CLI Usage
+
+You can run the tool directly using `pnpm start`:
 
 ```bash
-# Run tests
-pnpm test
+# Basic search
+pnpm start .
 
-# Type check and run tests (pre-commit check)
-pnpm run precommit
+# Search with pattern and ignore node_modules
+pnpm start . --pattern "*.ts" --ignore node_modules
 
-# Build
-pnpm run build
+# Search with regex
+pnpm start . --regex "test.*\.ts$"
+
+# Filter by size and type
+pnpm start ./src --min-size 1000 --files
 ```
+
+#### CLI Options
+
+* `<root>`: The directory to start the search from.
+* `-p, --pattern <glob>`: Filter results by glob pattern.
+* `-r, --regex <regex>`: Filter results by regular expression.
+* `-i, --ignore <pattern>`: Add a pattern to ignore (can be used multiple times).
+* `--gitignore`: Enable automatic `.gitignore` rule detection.
+* `--min-size <bytes>`: Filter files by minimum size.
+* `--max-size <bytes>`: Filter files by maximum size.
+* `--files`: Show only files in results.
+* `--dirs`: Show only directories in results.
+* `-h, --help`: Show the help message.
 
 ## License
 
