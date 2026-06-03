@@ -1,19 +1,40 @@
+import { readdir, stat } from 'node:fs/promises';
+import { join, basename } from 'node:path';
+
+export interface SearchResult {
+  path: string;
+  name: string;
+  isDirectory: boolean;
+}
+
+export interface SearchOptions {
+  root: string;
+  pattern?: string;
+}
+
 export class FileFinder {
-  async search(_options: { root: string; pattern: string }) {
-    return [];
+  async search(options: SearchOptions): Promise<SearchResult[]> {
+    const results: SearchResult[] = [];
+    await this.traverse(options.root, results);
+    return results;
   }
-}
 
-async function main() {
-  console.log('File Finder CLI');
-}
+  private async traverse(currentDir: string, results: SearchResult[]): Promise<void> {
+    const entries = await readdir(currentDir);
 
-// Check if this file is the main module
-import { fileURLToPath } from 'node:url';
-import { realpathSync } from 'node:fs';
+    for (const entry of entries) {
+      const fullPath = join(currentDir, entry);
+      const entryStat = await stat(fullPath);
 
-const isMain = realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
-
-if (isMain) {
-  main().catch(console.error);
+      if (entryStat.isDirectory()) {
+        await this.traverse(fullPath, results);
+      } else {
+        results.push({
+          path: fullPath,
+          name: entry,
+          isDirectory: false
+        });
+      }
+    }
+  }
 }
