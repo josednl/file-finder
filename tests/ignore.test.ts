@@ -24,7 +24,7 @@ describe('Ignore System', () => {
   it('should respect programmatic ignore rules', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       pattern: '*',
       ignore: ['node_modules']
     });
@@ -37,7 +37,7 @@ describe('Ignore System', () => {
   it('should automatically load and respect .gitignore if present', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       pattern: '*',
       useGitignore: true
     });

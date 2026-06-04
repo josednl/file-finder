@@ -20,7 +20,7 @@ describe('Regex Search', () => {
   it('should find files matching a regular expression', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       regex: /app\.(component|service)\.ts/
     });
 
@@ -34,7 +34,7 @@ describe('Regex Search', () => {
     await writeFile(join(TEST_ROOT, 'file123.txt'), 'content');
     
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       regex: /\d+/
     });
 

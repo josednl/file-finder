@@ -22,13 +22,38 @@ describe('Filesystem Traversal', () => {
   it('should find all files in a recursive directory structure', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
-      pattern: '*'
+      roots: TEST_ROOT,
+      pattern: '*',
+      onlyFiles: true
     });
 
-    // Currently search returns [], so this will fail until implemented
     expect(results.length).toBe(3);
     const names = results.map(r => r.name).sort();
     expect(names).toEqual(['file1.txt', 'file2.txt', 'file3.txt'].sort());
+  });
+
+  it('should support multiple search roots', async () => {
+    const ROOT1 = './test-roots-1';
+    const ROOT2 = './test-roots-2';
+    
+    await mkdir(ROOT1, { recursive: true });
+    await mkdir(ROOT2, { recursive: true });
+    await writeFile(join(ROOT1, 'a.txt'), 'a');
+    await writeFile(join(ROOT2, 'b.txt'), 'b');
+
+    const finder = new FileFinder();
+    const results = await finder.search({
+      roots: [ROOT1, ROOT2],
+      onlyFiles: true
+    });
+
+    try {
+      expect(results.length).toBe(2);
+      const names = results.map(r => r.name).sort();
+      expect(names).toEqual(['a.txt', 'b.txt']);
+    } finally {
+      await rm(ROOT1, { recursive: true, force: true });
+      await rm(ROOT2, { recursive: true, force: true });
+    }
   });
 });

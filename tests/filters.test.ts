@@ -23,7 +23,7 @@ describe('Advanced Filters', () => {
   it('should filter by minimum file size', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       minSize: 1000, // 1KB
       onlyFiles: true
     });
@@ -35,7 +35,7 @@ describe('Advanced Filters', () => {
   it('should filter by maximum file size', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       maxSize: 100, // 100 bytes
       onlyFiles: true
     });
@@ -47,7 +47,7 @@ describe('Advanced Filters', () => {
   it('should filter by type (directories only)', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       onlyDirectories: true
     });
 

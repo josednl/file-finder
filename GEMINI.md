@@ -44,7 +44,7 @@ This document serves as the foundational mandate for Gemini CLI when working on 
 
 * **CLI Entry Point**:
 
-  * `src/index.ts`
+  * `src/cli.ts`
   * Example usage:
 
     ```bash
@@ -196,7 +196,7 @@ API design principles:
 * [x] **Advanced Filters**: Add size, date, and type filtering.
 * [x] **Regex Search**: Support regular expression matching.
 * [x] **CLI Experience**: Add argument parsing and output formatting.
-* [ ] **API Stabilization**: Finalize public API contracts.
+* [x] **API Stabilization**: Finalize public API contracts.
 * [ ] **Performance Improvements**: Optimize large directory traversal.
 * [ ] **AbortSignal Support**: Allow cancellation of long-running searches.
 * [ ] **Documentation & Examples**: Create educational examples explaining filesystem traversal internals.

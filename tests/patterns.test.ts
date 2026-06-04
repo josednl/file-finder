@@ -20,7 +20,7 @@ describe('Basic Pattern Matching', () => {
   it('should match exact filename', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       pattern: 'file1.txt'
     });
 
@@ -31,7 +31,7 @@ describe('Basic Pattern Matching', () => {
   it('should match using glob pattern (*.js)', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       pattern: '*.js'
     });
 
@@ -42,7 +42,7 @@ describe('Basic Pattern Matching', () => {
   it('should return all files when pattern is *', async () => {
     const finder = new FileFinder();
     const results = await finder.search({
-      root: TEST_ROOT,
+      roots: TEST_ROOT,
       pattern: '*'
     });
 
