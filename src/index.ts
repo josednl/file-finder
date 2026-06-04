@@ -26,8 +26,14 @@ export class FileFinder {
   async search(options: SearchOptions): Promise<SearchResult[]> {
     const results: SearchResult[] = [];
     const roots = Array.isArray(options.roots) ? options.roots : [options.roots];
+    
+    // Pre-compile regex for performance
+    let searchRegex: RegExp | undefined = options.regex;
+    if (!searchRegex && options.pattern && options.pattern !== '*') {
+      searchRegex = this.globToRegex(options.pattern);
+    }
 
-    for (const root of roots) {
+    const promises = roots.map(async (root) => {
       const ignoreManager = new IgnoreManager(options.ignore || []);
 
       if (options.useGitignore) {
@@ -40,35 +46,12 @@ export class FileFinder {
         }
       }
 
-      await this.traverse(root, results, ignoreManager, options);
-    }
+      await this.traverse(root, results, ignoreManager, options, searchRegex);
+    });
 
-    let filtered = results;
+    await Promise.all(promises);
 
-    if (options.regex) {
-      filtered = filtered.filter(result => options.regex!.test(result.name));
-    } else if (options.pattern && options.pattern !== '*') {
-      const regex = this.globToRegex(options.pattern);
-      filtered = filtered.filter(result => regex.test(result.name));
-    }
-
-    if (options.minSize !== undefined) {
-      filtered = filtered.filter(result => result.size >= options.minSize!);
-    }
-
-    if (options.maxSize !== undefined) {
-      filtered = filtered.filter(result => result.size <= options.maxSize!);
-    }
-
-    if (options.onlyDirectories) {
-      filtered = filtered.filter(result => result.isDirectory);
-    }
-
-    if (options.onlyFiles) {
-      filtered = filtered.filter(result => !result.isDirectory);
-    }
-
-    return filtered;
+    return results;
   }
 
   private globToRegex(glob: string): RegExp {
@@ -83,29 +66,52 @@ export class FileFinder {
     currentDir: string,
     results: SearchResult[],
     ignoreManager: IgnoreManager,
-    options: SearchOptions
+    options: SearchOptions,
+    searchRegex?: RegExp
   ): Promise<void> {
-    const entries = await readdir(currentDir);
+    const entries = await readdir(currentDir, { withFileTypes: true });
 
-    for (const entry of entries) {
-      if (ignoreManager.shouldIgnore(entry)) {
-        continue;
+    const tasks = entries.map(async (entry) => {
+      if (ignoreManager.shouldIgnore(entry.name)) {
+        return;
       }
 
-      const fullPath = join(currentDir, entry);
+      const fullPath = join(currentDir, entry.name);
+      const isDirectory = entry.isDirectory();
+
+      // We only need stat if we are filtering by size or if we need the modified date for the result
+      // According to SearchResult interface, we always need size and modifiedAt.
+      // However, we can skip stat if we are only looking for directories and entry is a file.
+      if (options.onlyDirectories && !isDirectory) return;
+      if (options.onlyFiles && isDirectory) {
+        // We still need to traverse subdirectories even if we only want files
+        await this.traverse(fullPath, results, ignoreManager, options, searchRegex);
+        return;
+      }
+
       let entryStat;
-      
       try {
         entryStat = await stat(fullPath);
       } catch (e) {
-        continue;
+        return;
       }
 
-      const isDirectory = entryStat.isDirectory();
-      
+      // Apply size filters early
+      if (options.minSize !== undefined && entryStat.size < options.minSize) return;
+      if (options.maxSize !== undefined && entryStat.size > options.maxSize) return;
+
+      // Apply pattern/regex filters early
+      if (searchRegex && !searchRegex.test(entry.name)) {
+        // If it's a directory, we still need to recurse even if it doesn't match the pattern
+        if (isDirectory) {
+          await this.traverse(fullPath, results, ignoreManager, options, searchRegex);
+        }
+        return;
+      }
+
       const result: SearchResult = {
         path: fullPath,
-        name: entry,
+        name: entry.name,
         isDirectory,
         size: entryStat.size,
         modifiedAt: entryStat.mtime
@@ -114,8 +120,10 @@ export class FileFinder {
       results.push(result);
 
       if (isDirectory) {
-        await this.traverse(fullPath, results, ignoreManager, options);
+        await this.traverse(fullPath, results, ignoreManager, options, searchRegex);
       }
-    }
+    });
+
+    await Promise.all(tasks);
   }
 }

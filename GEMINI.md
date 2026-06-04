@@ -197,7 +197,7 @@ API design principles:
 * [x] **Regex Search**: Support regular expression matching.
 * [x] **CLI Experience**: Add argument parsing and output formatting.
 * [x] **API Stabilization**: Finalize public API contracts.
-* [ ] **Performance Improvements**: Optimize large directory traversal.
+* [x] **Performance Improvements**: Optimize large directory traversal.
 * [ ] **AbortSignal Support**: Allow cancellation of long-running searches.
 * [ ] **Documentation & Examples**: Create educational examples explaining filesystem traversal internals.
 
