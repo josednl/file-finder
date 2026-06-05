@@ -37,6 +37,20 @@ const results = await finder.search({
 console.log(results);
 ```
 
+## Examples
+
+You can find educational scripts in the `examples/` directory:
+
+- `basic-usage.ts`: Fundamental recursive search with glob patterns.
+- `advanced-filters.ts`: Filtering results by size and type.
+- `cancellation.ts`: Using `AbortSignal` to cancel long-running searches.
+
+To run an example:
+
+```bash
+pnpm tsx examples/basic-usage.ts
+```
+
 ### CLI Usage
 
 You can run the tool directly using `pnpm start`:

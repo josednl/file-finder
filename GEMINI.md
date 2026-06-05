@@ -199,7 +199,7 @@ API design principles:
 * [x] **API Stabilization**: Finalize public API contracts.
 * [x] **Performance Improvements**: Optimize large directory traversal.
 * [x] **AbortSignal Support**: Allow cancellation of long-running searches.
-* [ ] **Documentation & Examples**: Create educational examples explaining filesystem traversal internals.
+* [x] **Documentation & Examples**: Create educational examples explaining filesystem traversal internals.
 
 ## Evolution Notes
 
