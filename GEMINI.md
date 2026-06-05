@@ -198,7 +198,7 @@ API design principles:
 * [x] **CLI Experience**: Add argument parsing and output formatting.
 * [x] **API Stabilization**: Finalize public API contracts.
 * [x] **Performance Improvements**: Optimize large directory traversal.
-* [ ] **AbortSignal Support**: Allow cancellation of long-running searches.
+* [x] **AbortSignal Support**: Allow cancellation of long-running searches.
 * [ ] **Documentation & Examples**: Create educational examples explaining filesystem traversal internals.
 
 ## Evolution Notes

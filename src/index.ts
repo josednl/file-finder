@@ -20,10 +20,12 @@ export interface SearchOptions {
   maxSize?: number;
   onlyDirectories?: boolean;
   onlyFiles?: boolean;
+  signal?: AbortSignal;
 }
 
 export class FileFinder {
   async search(options: SearchOptions): Promise<SearchResult[]> {
+    options.signal?.throwIfAborted();
     const results: SearchResult[] = [];
     const roots = Array.isArray(options.roots) ? options.roots : [options.roots];
     
@@ -39,9 +41,10 @@ export class FileFinder {
       if (options.useGitignore) {
         try {
           const gitignorePath = join(root, '.gitignore');
-          const content = await readFile(gitignorePath, 'utf-8');
+          const content = await readFile(gitignorePath, { encoding: 'utf-8', signal: options.signal });
           ignoreManager.addPatterns(content.split('\n'));
-        } catch (e) {
+        } catch (e: any) {
+          if (e.name === 'AbortError') throw e;
           // .gitignore not found or unreadable, ignore silently
         }
       }
@@ -69,9 +72,11 @@ export class FileFinder {
     options: SearchOptions,
     searchRegex?: RegExp
   ): Promise<void> {
-    const entries = await readdir(currentDir, { withFileTypes: true });
+    options.signal?.throwIfAborted();
+    const entries = await readdir(currentDir, { withFileTypes: true, signal: options.signal } as any);
 
-    const tasks = entries.map(async (entry) => {
+    const tasks = entries.map(async (entry: any) => {
+      options.signal?.throwIfAborted();
       if (ignoreManager.shouldIgnore(entry.name)) {
         return;
       }
@@ -91,8 +96,9 @@ export class FileFinder {
 
       let entryStat;
       try {
-        entryStat = await stat(fullPath);
-      } catch (e) {
+        entryStat = await stat(fullPath, { signal: options.signal } as any);
+      } catch (e: any) {
+        if (e.name === 'AbortError') throw e;
         return;
       }
 
